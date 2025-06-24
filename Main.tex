@@ -1,0 +1,133 @@
+\RequirePackage{plautopatch}
+\documentclass[12pt,aspectratio=169,xcolor=dvipsnames,table,dvipdfmx, leqno]{beamer}
+
+\usepackage{bxdpx-beamer}
+\usepackage{mathtools}
+\usepackage{amsmath,amsthm,amssymb,amscd}
+\usepackage{ascmac}
+\usepackage{physics}
+\usepackage{here}
+\usepackage{url}
+\usepackage{bm}
+\usepackage{subcaption}
+\usepackage{color}
+\usepackage{multirow}
+\usepackage[all]{xy}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext} % 数式以外をTXフォントで上書き
+\usepackage{ulem}
+\usepackage[deluxe,uplatex]{otf} % 日本語多ウェイト化
+%\usepackage[linesnumbered,ruled]{algorithm2e}
+\usepackage{algorithm}
+\usepackage[noend]{algpseudocode}
+\usepackage{tikz}
+
+
+%Beamerの設定
+\usetheme{Boadilla}
+
+%Beamerフォント設定
+\usefonttheme{professionalfonts} % Be professional!
+\renewcommand{\familydefault}{\sfdefault}  % 英文をサンセリフ体に
+\renewcommand{\kanjifamilydefault}{\gtdefault}  % 日本語をゴシック体に
+\newcommand{\vol}{\text{vol}}
+\newcommand{\round}[1]{\left\lfloor #1 \right\rceil}
+\newcommand{\bhline}{\noalign{\hrule height 1.0pt}}
+\DeclareMathOperator{\Pot}{Pot}
+\DeclareFontFamily{U}{mathx}{}
+\DeclareFontShape{U}{mathx}{m}{n}{<-> mathx10}{}
+\DeclareSymbolFont{mathx}{U}{mathx}{m}{n}
+\DeclareMathAccent{\widecheck}{0}{mathx}{"71}
+
+\algdef{SE}[DOWHILE]{Do}{doWhile}{\algorithmicdo}[1]{\algorithmicwhile\ #1}%
+
+% Babel (日本語の場合のみ・英語の場合は不要)
+\uselanguage{japanese}
+\languagepath{japanese}
+\deftranslation[to=japanese]{Theorem}{定理}
+\deftranslation[to=japanese]{Lemma}{補題}
+\deftranslation[to=japanese]{Example}{例}
+\deftranslation[to=japanese]{Examples}{例}
+\deftranslation[to=japanese]{Definition}{定義}
+\deftranslation[to=japanese]{Definitions}{定義}
+\deftranslation[to=japanese]{Problem}{問題}
+\deftranslation[to=japanese]{Solution}{解}
+\deftranslation[to=japanese]{Fact}{事実}
+\deftranslation[to=japanese]{Proof}{証明}
+\def\proofname{証明}
+
+\setbeamertemplate{theorems}[numbered]
+\newtheorem{Proposition}[theorem]{命題}
+
+%タイトル
+\title[勉強会]{勉強会形式ゼミ資料①\\P.Q.Nguyen and D. Stehle Floating-Point LLL Revisited}
+\author[佐藤]{佐藤 新}
+\date{\today}
+%\institute[]{\inst{1}~立教大学}
+
+\begin{document}
+\maketitle
+
+\begin{frame}
+    本セミナーで用いられる記号など
+    \begin{itemize}
+        \item 全て$\{\bm{b}_1,\ldots,\bm{b}_n\}$を基底としてもつ整数格子
+        \item $B=\max\{\norm{b}_i~|~1\le i\le n\}$
+        \item 浮動小数点数の演算精度は$\ell$-bit
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Gram-Schmidtの計算}
+    Gram-Schmidtの情報は
+    \[
+    \mu_{i, j}=\frac{\langle \bm{b}_i, \bm{b}_j\rangle-\sum_{k=1}^{j-1}\mu_{j, k}\mu_{i, k}\norm{\bm{b}_k^\star}^2}{\norm{\bm{b}_j^\star}^2}, \norm{\bm{b}_i^\star}^2=\norm{\bm{b}_i^\star}^2-\sum_{j=1}^{i-1}\mu_{i, j}^2\norm{\bm{b}_j^\star}^2
+    \]
+    という公式で計算可能
+
+    \begin{itemize}
+        \item 内積$\langle \bm{b}_i, \bm{b}_j\rangle$の計算に浮動小数点数が必要\\
+        \quad\quad $2^{-\ell}\norm{\bm{b}_i}\norm{\bm{b}_j}$の潜在的な不確定性がある
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Gram-Schmidtの計算}
+    Gram-Schmidtの情報から
+    \[
+    r_{i, j}=\langle \bm{b}_i, \bm{b}_j\rangle-\sum_{k=1}^{j-1}\mu_{j, k}r_{i, k}, \mu_{i, j}=\frac{r_{i, j}}{r_{j, j}}
+    \]
+    という公式で計算可能な形で情報を持つ
+\end{frame}
+
+\begin{frame}{}
+\begin{algorithm}[H]
+    \footnotesize
+    \begin{algorithmic}[1]
+        \caption{\footnotesize $L^2$内でのsize-reduction}
+        \label{alg_LLL}
+        \Require{格子$L$の基底$\{\bm{b}_1,\ldots,\bm{b}_n\}$}
+        \Ensure{$\delta$に関してLLL簡約された基底}
+        \State $\bar{\eta}\gets\frac{\eta+1/2}{2}=\frac{2\eta+1}{4}$
+        \Do
+            \For{$j=1$ to $\kappa$}
+                \State $r_{i, j}\gets \langle\bm{b}_i, \bm{b}_j\rangle$
+                \State \textbf{for} $k=1$ to $j-1$ \textbf{do} $r_{i, j}\gets r_{i, j}-r_{i, k}\mu_{j, k}$
+                \State $\mu_{i, j}\gets \frac{r_{i, j}}{r_{j, j}}$
+            \EndFor
+            \State $s_0\gets \norm{\bm{b}_n}^2$
+            \State \textbf{for} $k = 1$ to $j-1$ \textbf{do} $s_j\gets s_{j-1}-\mu_{n, j}r_{n, j}$
+            \State $r_{n, n}\gets s_n$
+            \For{$i=\kappa-1$ downto 1}
+                \State \textbf{if} $\abs{\bar{\mu}_{k, i}}\ge \bar{\eta}$ \textbf{then} $X_i\gets \round{\bar{\mu}_{k, i}}$ \textbf{else} $X_i\gets 0$
+                \State \textbf{for} $j=1$ to $i-1$ \textbf{do} $\bar{\mu}_{k, j}\gets \bar{\mu}_{\kappa, j}-X_i\bar{\mu}_{i, j}$
+            \EndFor
+        \doWhile{$X\ne \bm{0}$}
+    \end{algorithmic}
+\end{algorithm}
+\end{frame}
+
+\begin{frame}[allowframebreaks]{参考文献}
+\beamertemplatetextbibitems
+\bibliographystyle{plain}
+\bibliography{ref}
+\end{frame}
+\end{document}
