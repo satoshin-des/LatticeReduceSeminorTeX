@@ -75,6 +75,7 @@
         \item 全て$\{\bm{b}_1,\ldots,\bm{b}_n\}$を基底としてもつ整数格子
         \item $B=\max\{\norm{b}_i~|~1\le i\le n\}$
         \item 浮動小数点数の演算精度は$\ell$-bit
+        \item $\diamond(a*b)$は$a*b$の浮動小数点演算$(*\in\{+, -, \times, /\})$
     \end{itemize}
 \end{frame}
 
@@ -125,25 +126,52 @@ s_j^{(i)}\coloneqq \norm{\bm{b}_i}^2-\sum_{k=1}^{j-1}\mu_{i, k}r_{i, k}\left(=\s
     \footnotesize
     \begin{algorithmic}[1]
         \caption{\footnotesize $L^2$内でのsize-reduction}
-        \label{alg_LLL}
+        \label{alg_size_L2}
         \Require{パラメタ$\eta>1/2$，$\kappa\in\mathbb{Z}$，基底$\{\bm{b}_1,\ldots, \bm{b}_n\}$}
         \Ensure{$[\bar{r}_{\kappa, j}],~[\bar{\mu}_{\kappa, j}],~[\bar{s}_j]~(j\le \kappa)$，$\{\ldots,\bm{b}_{\kappa-1},\bm{b}_{\kappa}',\bm{b}_{\kappa+1},\ldots\}$}
         \State $\bar{\eta}\gets\frac{\eta+1/2}{2}=\frac{2\eta+1}{4}$
         \Do
             \For{$j=1$ to $\kappa$}\Comment{Cholesky分解}
                 \State $\bar{r}_{i, j}\gets \langle\bm{b}_i, \bm{b}_j\rangle$
-                \State \textbf{for} $k=1$ to $j-1$ \textbf{do} $\bar{r}_{i, j}\gets \bar{r}_{i, j}-\bar{r}_{i, k}\bar{\mu}_{j, k}$
-                \State $\bar{\mu}_{i, j}\gets {\bar{r}_{i, j}}/{\bar{r}_{j, j}}$
+                \State \textbf{for} $k=1$ to $j-1$ \textbf{do} $\bar{r}_{i, j}\gets \diamond(\bar{r}_{i, j}-\diamond(\bar{r}_{i, k}\bar{\mu}_{j, k}))$
+                \State $\bar{\mu}_{i, j}\gets \diamond(\bar{r}_{i, j}/\bar{r}_{j, j})$
             \EndFor
             \State $s_0\gets \norm{\bm{b}_n}^2$
-            \State \textbf{for} $k = 1$ to $j-1$ \textbf{do} $\bar{s}_j\gets \bar{s}_{j-1}-\bar{\mu}_{n, j}\bar{r}_{n, j}$
+            \State \textbf{for} $k = 1$ to $j-1$ \textbf{do} $\bar{s}_j\gets \diamond(\bar{s}_{j-1}-\diamond(\bar{\mu}_{n, j}\bar{r}_{n, j}))$
             \State $r_{n, n}\gets s_n$
             \For{$i=\kappa-1$ downto 1}
                 \State \textbf{if} $\abs{\bar{\mu}_{k, i}}\ge \bar{\eta}$ \textbf{then} $X_i\gets \round{\bar{\mu}_{k, i}}$ \textbf{else} $X_i\gets 0$
-                \State \textbf{for} $j=1$ to $i-1$ \textbf{do} $\bar{\mu}_{k, j}\gets \bar{\mu}_{\kappa, j}-X_i\bar{\mu}_{i, j}$
+                \State \textbf{for} $j=1$ to $i-1$ \textbf{do} $\bar{\mu}_{k, j}\gets \diamond(\bar{\mu}_{\kappa, j}-\diamond(X_i\bar{\mu}_{i, j}))$
             \EndFor
             \State $\bm{b}_\kappa\gets \bm{b}_\kappa-\sum_{i=1}^{\kappa-1}X_i\bm{b}_i$
         \doWhile{$X\ne \bm{0}_{\kappa-1}$}
+    \end{algorithmic}
+\end{algorithm}
+\end{frame}
+
+\begin{frame}
+\begin{algorithm}[H]
+    \footnotesize
+    \begin{algorithmic}[1]
+        \caption{\footnotesize $L^2$簡約}
+        \label{alg_L2}
+        \Require{パラメタ$\eta, \delta$，基底$\{\bm{b}_1,\ldots,\bm{b}_n\}$}
+        \Ensure{簡約された基底$\{\bm{b}_1,\ldots,\bm{b}_n\}$}
+        \State $\bar{\delta}\gets(\delta+1)/2$
+        \State $\bar{r}_{1,1}\gets\norm{\bm{b}_1}^2$
+        \State $\kappa\gets 2$
+        \While{$\kappa\le n$}
+            \State size-reduce~(Algorithm~\ref{alg_size_L2})
+            \State $\kappa'\gets\kappa$
+            \While{$\kappa\ge 2 \land \bar{\delta}\bar{r}_{\kappa-1, \kappa-1}\ge \bar{s}_{\kappa-1}$}
+                \State $\kappa\gets\kappa-1$
+            \EndWhile
+            \For{$i=1$ to $\kappa-1$}
+                \State $\bar{\mu}_{\kappa, i}\gets\bar{\mu}_{\kappa', i};~\bar{r}_{\kappa, i}\gets\bar{r}_{\kappa', i};~\bar{r}_{\kappa, \kappa}\gets\bar{s}_{\kappa}$
+            \EndFor
+            \State $\{\bm{b}_1,\ldots,\bm{b}_n\}\gets\{\ldots, \bm{b}_{\kappa'-1}, \bm{b}_{\kappa'+1},\ldots,\bm{b}_{\kappa'}, \bm{b}_\kappa, \ldots\}$
+            \State $\kappa\gets \kappa+1$
+        \EndWhile
     \end{algorithmic}
 \end{algorithm}
 \end{frame}
