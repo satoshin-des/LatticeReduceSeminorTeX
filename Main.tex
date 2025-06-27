@@ -79,10 +79,10 @@
     \end{itemize}
 \end{frame}
 
-\begin{frame}{Gram-Schmidtの計算}
+\begin{frame}{Gram-Schmidtの計算（1/5）}{今までのGSO情報の持ち方}
     Gram-Schmidtの情報は
     \[
-    \mu_{i, j}=\frac{\langle \bm{b}_i, \bm{b}_j\rangle-\sum_{k=1}^{j-1}\mu_{j, k}\mu_{i, k}\norm{\bm{b}_k^\star}^2}{\norm{\bm{b}_j^\star}^2}, \norm{\bm{b}_i^\star}^2=\norm{\bm{b}_i^\star}^2-\sum_{j=1}^{i-1}\mu_{i, j}^2\norm{\bm{b}_j^\star}^2
+    \mu_{i, j}=\frac{\langle \bm{b}_i, \bm{b}_j\rangle-\sum_{k=1}^{j-1}\mu_{j, k}\mu_{i, k}\norm{\bm{b}_k^\star}^2}{\norm{\bm{b}_j^\star}^2}, \norm{\bm{b}_i^\star}^2=\norm{\bm{b}_i}^2-\sum_{j=1}^{i-1}\mu_{i, j}^2\norm{\bm{b}_j^\star}^2
     \]
     という公式で計算可能
 
@@ -92,7 +92,7 @@
     \end{itemize}
 \end{frame}
 
-\begin{frame}{Gram-Schmidtの計算}
+\begin{frame}{Gram-Schmidtの計算（2/5）}{$\text{L}^2$でのGSO情報の持ち方}
     Gram-Schmidtの情報から
     \[
     r_{i, j}=\langle \bm{b}_i, \bm{b}_j\rangle-\sum_{k=1}^{j-1}\mu_{j, k}r_{i, k},~\mu_{i, j}=\frac{r_{i, j}}{r_{j, j}}\quad(i\ge j)
@@ -105,20 +105,43 @@
     \end{itemize}
 \end{frame}
 
-\begin{frame}{Gram-Schmidtの計算}
+\begin{frame}{Gram-Schmidtの計算（3/5）}{Lov\'asz条件の書き換え}
 \[
-s_j^{(i)}\coloneqq \norm{\bm{b}_i}^2-\sum_{k=1}^{j-1}\mu_{i, k}r_{i, k}\left(=\sum_{k=j}^i\mu_{i, k}r_{i, k}\right)\quad(1\le j\le i)
+s_j^{(i)}\coloneqq \norm{\bm{b}_i}^2-\sum_{k=1}^{j-1}\mu_{i, k}r_{i, k}\quad(1\le j\le i)
 \]
 とすると，Lov\'asz条件$\delta\norm{\bm{b}_{\kappa-1}^\star}^2\le \norm{\bm{b}_\kappa^\star}^2+\mu_{\kappa, \kappa-1}^2\norm{\bm{b}_{\kappa-1}^\star}^2$は
+\begin{align*}
+\norm{\bm{b}_\kappa^\star}^2+\mu_{\kappa, \kappa-1}^2\norm{\bm{b}_{\kappa-1}^\star}^2&=\norm{\bm{b}_\kappa}^2-\sum_{j=1}^{\kappa-2}\mu_{\kappa, j}^2\norm{\bm{b}_j^\star}^2=\norm{\bm{b}_\kappa}^2-\sum_{j=1}^{\kappa-2}\mu_{\kappa, j}r_{\kappa, j}\norm{\bm{b}_j^\star}^2\\
+&=s_{\kappa-1}^{(\kappa)}
+\end{align*}
+より
 \[
 \delta r_{\kappa-1, \kappa-1}\le s_{\kappa-1}^{(\kappa)}
 \]
 と書き換えることができる．
-更に$\bm{b}_{\kappa}$と$\bm{b}_{\kappa-1}$の交換後はLov\'asz条件は
+\end{frame}
+
+\begin{frame}{Gram-Schmidtの計算（4/5）}{基底の更新後のLov\'asz条件（1/2）}
+更に$\bm{b}_{\kappa}$と$\bm{b}_{\kappa-1}$の交換後の基底
 \[
-\delta r_{\kappa-2, \kappa-2}\le s_{\kappa-2}^{(\kappa)}
+\{\bm{c}_1,\ldots,\bm{c}_n\}\coloneqq\{\ldots,\bm{b}_{\kappa-2},\bm{b}_{\kappa}, \bm{b}_{\kappa-1}, \bm{b}_{\kappa+1},\ldots\}
 \]
-になるので，\textbf{追加のコストなく}次の条件に移れる
+とすると，交換後に検証すべきLov\'asz条件は
+\begin{equation}
+    \label{lovasz_after_swap}
+\delta\norm{\bm{c}_{\kappa-2}^\star}^2\le \norm{\bm{c}_{\kappa-1}^\star}^2+\nu_{\kappa-1, \kappa-2}^2\norm{\bm{c}_{\kappa-2}^\star}^2
+\end{equation}
+に移る．
+\end{frame}
+
+\begin{frame}{Gram-Schmidtの計算（5/5）}{基底の更新後のLov\'asz条件（2/2）}
+$\norm{\bm{c}_{\kappa-2}^\star}^2=\norm{\bm{b}_{\kappa-2}^\star}^2,~\norm{\bm{c}_{\kappa-1}^\star}=\norm{\pi_{\kappa-1}(\bm{b}_\kappa)}^2$, $\nu_{\kappa-1, \kappa-2}=\mu_{\kappa-1, \kappa-2}$であるので，
+\begin{align*}
+    \text{式}\eqref{lovasz_after_swap}&\iff \delta\norm{\bm{b}_{\kappa-2}^\star}^2\le \norm{\pi_{\kappa-1}(\bm{b}_\kappa)}^2+\mu_{\kappa-1, \kappa-2}\norm{\bm{b}_{\kappa-2}^\star}^2\\
+    &\iff \delta r_{\kappa-2, \kappa-2}\le \mu_{\kappa, \kappa-1}\norm{\bm{b}_{\kappa-1}^\star}^2+\norm{\bm{b}_\kappa^\star}^2+\mu_{\kappa-1, \kappa-2}\norm{\bm{b}_{\kappa-2}^\star}^2\\
+    &\iff \delta r_{\kappa-2, \kappa-2}\le \norm{\bm{b}_\kappa}^2-\sum_{j=1}^{\kappa-3}\mu_{\kappa, j}r_{\kappa, j}\norm{\bm{b}_j^\star}^2=s_{\kappa-2}^{(\kappa)}
+\end{align*}
+になるので，$[s_j^{(i)}]$を持っておくと\textbf{追加のコストなく}次の条件に移れる
 \end{frame}
 
 \begin{frame}{}
