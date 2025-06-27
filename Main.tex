@@ -144,6 +144,18 @@ $\norm{\bm{c}_{\kappa-2}^\star}^2=\norm{\bm{b}_{\kappa-2}^\star}^2,~\norm{\bm{c}
 になるので，$[s_j^{(i)}]$を持っておくと\textbf{追加のコストなく}次の条件に移れる
 \end{frame}
 
+\begin{frame}{$\text{L}^2$内でのsize-reduction（1/2）}
+$\text{L}^2$内でのsize-reductionでは，大まかに次のことを行う
+\begin{enumerate}
+    \item 基底$\{\bm{b}_1,\ldots,\bm{b}_n\}$のGram行列$G(\bm{b}_1,\ldots,\bm{b}_n)$のCholesky分解を利用して$[r_{\kappa, j}], [\mu_{\kappa, j}], [s_j^{(\kappa)}]$を計算
+    \item $\abs{\mu_{\kappa, j}}\ge \frac{\eta+\frac{1}{2}}{2}$のとき
+    \begin{itemize}
+        \item $\bm{b}_\kappa\gets \bm{b}_\kappa-\round{\mu_{\kappa, j}}\bm{b}_j$で$\abs{\mu_{\kappa, j}}\le 1/2$なるように基底を更新
+        \item それに合わせて$[r_{\kappa, j}], [\mu_{\kappa, j}], [s_j^{(\kappa)}]$も更新
+    \end{itemize}
+\end{enumerate}
+\end{frame}
+
 \begin{frame}{}
 \begin{algorithm}[H]
     \footnotesize
@@ -151,20 +163,19 @@ $\norm{\bm{c}_{\kappa-2}^\star}^2=\norm{\bm{b}_{\kappa-2}^\star}^2,~\norm{\bm{c}
         \caption{\footnotesize $L^2$内でのsize-reduction}
         \label{alg_size_L2}
         \Require{パラメタ$\eta>1/2$，$\kappa\in\mathbb{Z}$，基底$\{\bm{b}_1,\ldots, \bm{b}_n\}$}
-        \Ensure{$[\bar{r}_{\kappa, j}],~[\bar{\mu}_{\kappa, j}],~[\bar{s}_j]~(j\le \kappa)$，$\{\ldots,\bm{b}_{\kappa-1},\bm{b}_{\kappa}',\bm{b}_{\kappa+1},\ldots\}$}
+        \Ensure{$[\bar{r}_{\kappa, j}],~[\bar{\mu}_{\kappa, j}],~[\bar{s}_j^{(\kappa)}]~(j\le \kappa)$，簡約された基底$\{\ldots,\bm{b}_{\kappa-1},\bm{b}_{\kappa}',\bm{b}_{\kappa+1},\ldots\}$}
         \State $\bar{\eta}\gets\frac{\eta+1/2}{2}=\frac{2\eta+1}{4}$
         \Do
-            \For{$j=1$ to $\kappa$}\Comment{Cholesky分解}
-                \State $\bar{r}_{i, j}\gets \langle\bm{b}_i, \bm{b}_j\rangle$
-                \State \textbf{for} $k=1$ to $j-1$ \textbf{do} $\bar{r}_{i, j}\gets \diamond(\bar{r}_{i, j}-\diamond(\bar{r}_{i, k}\bar{\mu}_{j, k}))$
-                \State $\bar{\mu}_{i, j}\gets \diamond(\bar{r}_{i, j}/\bar{r}_{j, j})$
+            \For{$j=1$ to $\kappa$}\Comment{部分的なCholesky分解で$[r_{\kappa, j}], [\mu_{\kappa, j}], [s_{j}^{(\kappa)}]$を更新}
+                \State $\bar{r}_{\kappa, j}\gets \langle\bm{b}_\kappa, \bm{b}_j\rangle$
+                \State \textbf{for} $h=1$ to $j-1$ \textbf{do} $\bar{r}_{\kappa, j}\gets \diamond(\bar{r}_{\kappa, j}-\diamond(\bar{r}_{\kappa, h}\times\bar{\mu}_{j, h}))$
+                \State $\bar{\mu}_{\kappa, j}\gets \diamond(\bar{r}_{\kappa, j}/\bar{r}_{j, j})$
             \EndFor
-            \State $s_0\gets \norm{\bm{b}_n}^2$
-            \State \textbf{for} $k = 1$ to $j-1$ \textbf{do} $\bar{s}_j\gets \diamond(\bar{s}_{j-1}-\diamond(\bar{\mu}_{n, j}\bar{r}_{n, j}))$
-            \State $r_{n, n}\gets s_n$
+            \State $s_0^{(\kappa)}\gets \norm{\bm{b}_n}^2$
+            \State \textbf{for} $k = 1$ to $j-1$ \textbf{do} $\bar{s}_j^{(\kappa)}\gets \diamond(\bar{s}_{j-1}^{(\kappa)}-\diamond(\bar{\mu}_{n, j}\times\bar{r}_{n, j}))$~\textbf{endfor};~$r_{n, n}\gets s_n^{(\kappa)}$
             \For{$i=\kappa-1$ downto 1}
-                \State \textbf{if} $\abs{\bar{\mu}_{k, i}}\ge \bar{\eta}$ \textbf{then} $X_i\gets \round{\bar{\mu}_{k, i}}$ \textbf{else} $X_i\gets 0$
-                \State \textbf{for} $j=1$ to $i-1$ \textbf{do} $\bar{\mu}_{k, j}\gets \diamond(\bar{\mu}_{\kappa, j}-\diamond(X_i\bar{\mu}_{i, j}))$
+                \State \textbf{if} $\abs{\bar{\mu}_{\kappa, i}}\ge \bar{\eta}$ \textbf{then} $X_i\gets \round{\bar{\mu}_{\kappa, i}}$ \textbf{else} $X_i\gets 0$\Comment{$\abs{\mu_{\kappa, i}}$により係数ベクトルを決定}
+                \State \textbf{for} $j=1$ to $i-1$ \textbf{do} $\bar{\mu}_{\kappa, j}\gets \diamond(\bar{\mu}_{\kappa, j}-\diamond(X_i\times\bar{\mu}_{i, j}))$
             \EndFor
             \State $\bm{b}_\kappa\gets \bm{b}_\kappa-\sum_{i=1}^{\kappa-1}X_i\bm{b}_i$
         \doWhile{$X\ne \bm{0}_{\kappa-1}$}
