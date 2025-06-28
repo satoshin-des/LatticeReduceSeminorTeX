@@ -30,7 +30,7 @@
 \usefonttheme{professionalfonts} % Be professional!
 \renewcommand{\familydefault}{\sfdefault}  % 英文をサンセリフ体に
 \renewcommand{\kanjifamilydefault}{\gtdefault}  % 日本語をゴシック体に
-\renewcommand{\Comment}[1]{\quad/*#1*/}
+\renewcommand{\Comment}[1]{\quad/*~#1~*/}
 \newcommand{\vol}{\text{vol}}
 \newcommand{\round}[1]{\left\lfloor #1 \right\rceil}
 \newcommand{\bhline}{\noalign{\hrule height 1.0pt}}
@@ -139,7 +139,8 @@ $\norm{\bm{c}_{\kappa-2}^\star}^2=\norm{\bm{b}_{\kappa-2}^\star}^2,~\norm{\bm{c}
 \begin{align*}
     \text{式}\eqref{lovasz_after_swap}&\iff \delta\norm{\bm{b}_{\kappa-2}^\star}^2\le \norm{\pi_{\kappa-1}(\bm{b}_\kappa)}^2+\mu_{\kappa-1, \kappa-2}\norm{\bm{b}_{\kappa-2}^\star}^2\\
     &\iff \delta r_{\kappa-2, \kappa-2}\le \mu_{\kappa, \kappa-1}\norm{\bm{b}_{\kappa-1}^\star}^2+\norm{\bm{b}_\kappa^\star}^2+\mu_{\kappa-1, \kappa-2}\norm{\bm{b}_{\kappa-2}^\star}^2\\
-    &\iff \delta r_{\kappa-2, \kappa-2}\le \norm{\bm{b}_\kappa}^2-\sum_{j=1}^{\kappa-3}\mu_{\kappa, j}r_{\kappa, j}\norm{\bm{b}_j^\star}^2=s_{\kappa-2}^{(\kappa)}
+    &\iff \delta r_{\kappa-2, \kappa-2}\le \norm{\bm{b}_\kappa}^2-\sum_{j=1}^{\kappa-3}\mu_{\kappa, j}r_{\kappa, j}\norm{\bm{b}_j^\star}^2\\
+    &\iff \delta r_{\kappa-2, \kappa-2}\le s_{\kappa-2}^{(\kappa)}
 \end{align*}
 になるので，$[s_j^{(i)}]$を持っておくと\textbf{追加のコストなく}次の条件に移れる
 \end{frame}
@@ -151,7 +152,8 @@ $\text{L}^2$内でのsize-reductionでは，大まかに次のことを行う
     \item $\abs{\mu_{\kappa, j}}\ge \frac{\eta+\frac{1}{2}}{2}$のとき
     \begin{itemize}
         \item $\bm{b}_\kappa\gets \bm{b}_\kappa-\round{\mu_{\kappa, j}}\bm{b}_j$で$\abs{\mu_{\kappa, j}}\le 1/2$なるように基底を更新
-        \item それに合わせて$[r_{\kappa, j}], [\mu_{\kappa, j}], [s_j^{(\kappa)}]$も更新
+        \item それに合わせて$[r_{\kappa, j}], [\mu_{\kappa, j}], [s_j^{(\kappa)}]$も更新\\
+        \quad\quad\quad※~条件$\abs{\mu_{\kappa, j}}\ge \frac{\eta+\frac{1}{2}}{2}$は$\eta\to\frac{1}{2}+$のとき$\abs{\mu_{\kappa, j}}> \frac{1}{2}$ 
     \end{itemize}
 \end{enumerate}
 \end{frame}
@@ -163,45 +165,57 @@ $\text{L}^2$内でのsize-reductionでは，大まかに次のことを行う
         \caption{\footnotesize $L^2$内でのsize-reduction}
         \label{alg_size_L2}
         \Require{パラメタ$\eta>1/2$，$\kappa\in\mathbb{Z}$，基底$\{\bm{b}_1,\ldots, \bm{b}_n\}$}
-        \Ensure{$[\bar{r}_{\kappa, j}],~[\bar{\mu}_{\kappa, j}],~[\bar{s}_j^{(\kappa)}]~(j\le \kappa)$，簡約された基底$\{\ldots,\bm{b}_{\kappa-1},\bm{b}_{\kappa}',\bm{b}_{\kappa+1},\ldots\}$}
-        \State $\bar{\eta}\gets\frac{\eta+1/2}{2}=\frac{2\eta+1}{4}$
+        \Ensure{$[\overline{r}_{\kappa, j}],~[\overline{\mu}_{\kappa, j}],~[\overline{s}_j^{(\kappa)}]~(j\le \kappa)$，簡約された基底$\{\ldots,\bm{b}_{\kappa-1},\bm{b}_{\kappa}',\bm{b}_{\kappa+1},\ldots\}$}
+        \State $\overline{\eta}\gets\frac{\eta+1/2}{2}=\frac{2\eta+1}{4}$
         \Do
             \For{$j=1$ to $\kappa$}\Comment{部分的なCholesky分解で$[r_{\kappa, j}], [\mu_{\kappa, j}], [s_{j}^{(\kappa)}]$を更新}
-                \State $\bar{r}_{\kappa, j}\gets \langle\bm{b}_\kappa, \bm{b}_j\rangle$
-                \State \textbf{for} $h=1$ to $j-1$ \textbf{do} $\bar{r}_{\kappa, j}\gets \diamond(\bar{r}_{\kappa, j}-\diamond(\bar{r}_{\kappa, h}\times\bar{\mu}_{j, h}))$
-                \State $\bar{\mu}_{\kappa, j}\gets \diamond(\bar{r}_{\kappa, j}/\bar{r}_{j, j})$
+                \State $\overline{r}_{\kappa, j}\gets \diamond(\langle\bm{b}_\kappa, \bm{b}_j\rangle)$
+                \State \textbf{for} $h=1$ to $j-1$ \textbf{do} $\overline{r}_{\kappa, j}\gets \diamond(\overline{r}_{\kappa, j}-\diamond(\overline{r}_{\kappa, h}\times\overline{\mu}_{j, h}))$
+                \State $\overline{\mu}_{\kappa, j}\gets \diamond(\overline{r}_{\kappa, j}/\overline{r}_{j, j})$
             \EndFor
             \State $s_0^{(\kappa)}\gets \norm{\bm{b}_n}^2$
-            \State \textbf{for} $k = 1$ to $j-1$ \textbf{do} $\bar{s}_j^{(\kappa)}\gets \diamond(\bar{s}_{j-1}^{(\kappa)}-\diamond(\bar{\mu}_{n, j}\times\bar{r}_{n, j}))$~\textbf{endfor};~$r_{n, n}\gets s_n^{(\kappa)}$
+            \State \textbf{for} $k = 1$ to $j-1$ \textbf{do} $\overline{s}_j^{(\kappa)}\gets \diamond(\overline{s}_{j-1}^{(\kappa)}-\diamond(\overline{\mu}_{n, j}\times\overline{r}_{n, j}))$~\textbf{endfor};~$r_{n, n}\gets s_n^{(\kappa)}$
             \For{$i=\kappa-1$ downto 1}
-                \State \textbf{if} $\abs{\bar{\mu}_{\kappa, i}}\ge \bar{\eta}$ \textbf{then} $X_i\gets \round{\bar{\mu}_{\kappa, i}}$ \textbf{else} $X_i\gets 0$\Comment{$\abs{\mu_{\kappa, i}}$により係数ベクトルを決定}
-                \State \textbf{for} $j=1$ to $i-1$ \textbf{do} $\bar{\mu}_{\kappa, j}\gets \diamond(\bar{\mu}_{\kappa, j}-\diamond(X_i\times\bar{\mu}_{i, j}))$
+                \State \textbf{if} $\abs{\overline{\mu}_{\kappa, i}}\ge \overline{\eta}$ \textbf{then} $X_i\gets \round{\overline{\mu}_{\kappa, i}}$ \textbf{else} $X_i\gets 0$\Comment{$\abs{\mu_{\kappa, i}}$により係数ベクトルを決定}
+                \State \textbf{for} $j=1$ to $i-1$ \textbf{do} $\overline{\mu}_{\kappa, j}\gets \diamond(\overline{\mu}_{\kappa, j}-\diamond(X_i\times\overline{\mu}_{i, j}))$
             \EndFor
             \State $\bm{b}_\kappa\gets \bm{b}_\kappa-\sum_{i=1}^{\kappa-1}X_i\bm{b}_i$
-        \doWhile{$X\ne \bm{0}_{\kappa-1}$}
+        \doWhile{$(X_1,\ldots,X_{\kappa-1})\ne \bm{0}_{\kappa-1}$}\Comment{すべての$\mu_{\kappa, j}$がsize-reduceされたら終了}
     \end{algorithmic}
 \end{algorithm}
 \end{frame}
 
-\begin{frame}
+\begin{frame}{$\text{L}^2$アルゴリズム（1/2）}
+$\text{L}^2$アルゴリズムでは，大まかに次のようなことを行う
+\begin{enumerate}
+    \item 基底をsize-reduce(Algorithm~\ref{alg_size_L2})するとともに，$[r_{i, j}], [\mu_{i, j}], [s_j^{\kappa}]$を計算
+    \item $\delta r_{\kappa-1, \kappa-1}\le s_{\kappa-1}^{(\kappa)}$かどうか（Lov\'asz条件）
+    \begin{itemize}
+        \item[偽] $\implies$$\delta r_{\kappa-2, \kappa-2}\le s_{\kappa-2}^{(\kappa)}$かどうか$\ldots$
+        \item[真] $\implies$$[\mu_{i, j}], [r_{i, j}], [s_j^{\kappa}]$を更新し，基底の交換 
+    \end{itemize}
+\end{enumerate}
+\end{frame}
+
+\begin{frame}{$\text{L}^2$アルゴリズム（2/2）}
 \begin{algorithm}[H]
     \footnotesize
     \begin{algorithmic}[1]
         \caption{\footnotesize $L^2$簡約}
         \label{alg_L2}
-        \Require{パラメタ$\eta, \delta$，基底$\{\bm{b}_1,\ldots,\bm{b}_n\}$}
+        \Require{パラメタ$\frac{1}{4}<\delta<1, \frac{1}{2}<\eta<\sqrt{\delta}$，基底$\{\bm{b}_1,\ldots,\bm{b}_n\}$}
         \Ensure{簡約された基底$\{\bm{b}_1,\ldots,\bm{b}_n\}$}
-        \State $\bar{\delta}\gets(\delta+1)/2$
-        \State $\bar{r}_{1,1}\gets\norm{\bm{b}_1}^2$
+        \State $\overline{\delta}\gets(\delta+1)/2$
+        \State $\overline{r}_{1,1}\gets\diamond(\norm{\bm{b}_1}^2)$
         \State $\kappa\gets 2$
         \While{$\kappa\le n$}
-            \State size-reduce~(Algorithm~\ref{alg_size_L2})
+            \State size-reduceして$[\overline{\mu}_{i, j}], [\overline{r}_{i, j}], [\overline{s}_{i}^{(\kappa)}]$を計算\Comment{Algorithm~\ref{alg_size_L2}}
             \State $\kappa'\gets\kappa$
-            \While{$\kappa\ge 2 \land \bar{\delta}\bar{r}_{\kappa-1, \kappa-1}\ge \bar{s}_{\kappa-1}$}
-                \State $\kappa\gets\kappa-1$
+            \While{$\kappa\ge 2 \land \overline{\delta}\overline{r}_{\kappa-1, \kappa-1}\ge \overline{s}_{\kappa-1}^{(\kappa')}$}\Comment{Lov\'asz条件}
+                \State $\kappa\gets\kappa-1$\Comment{基底の交換は後回し}
             \EndWhile
             \For{$i=1$ to $\kappa-1$}
-                \State $\bar{\mu}_{\kappa, i}\gets\bar{\mu}_{\kappa', i};~\bar{r}_{\kappa, i}\gets\bar{r}_{\kappa', i};~\bar{r}_{\kappa, \kappa}\gets\bar{s}_{\kappa}$
+                \State $\overline{\mu}_{\kappa, i}\gets\overline{\mu}_{\kappa', i};~\overline{r}_{\kappa, i}\gets\overline{r}_{\kappa', i};~\overline{r}_{\kappa, \kappa}\gets\overline{s}_{\kappa}^{(\kappa')}$
             \EndFor
             \State $\{\bm{b}_1,\ldots,\bm{b}_n\}\gets\{\ldots, \bm{b}_{\kappa'-1}, \bm{b}_{\kappa'+1},\ldots,\bm{b}_{\kappa'}, \bm{b}_\kappa, \ldots\}$
             \State $\kappa\gets \kappa+1$
