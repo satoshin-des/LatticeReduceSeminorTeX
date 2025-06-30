@@ -1,6 +1,7 @@
 \RequirePackage{plautopatch}
 \documentclass[12pt,aspectratio=169,table,dvipdfmx, leqno]{beamer}
 
+\usepackage[square,numbers]{natbib}
 \usepackage{bxdpx-beamer}
 \usepackage{mathtools}
 \usepackage{amsmath,amsthm,amssymb,amscd}
@@ -12,10 +13,10 @@
 \usepackage{subcaption}
 \usepackage{color}
 \usepackage{multirow}
-%\usepackage[T1]{fontenc}
-%\usepackage{newtxtext} % 数式以外をTXフォントで上書き
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext} % 数式以外をTXフォントで上書き
 \usepackage{ulem}
-%\usepackage[deluxe,uplatex]{otf} % 日本語多ウェイト化
+\usepackage[deluxe,uplatex]{otf} % 日本語多ウェイト化
 %\usepackage[linesnumbered,ruled]{algorithm2e}
 \usepackage{algorithm}
 \usepackage[noend]{algpseudocode}
@@ -162,7 +163,7 @@ $\text{L}^2$内でのsize-reductionでは，大まかに次のことを行う
 \begin{algorithm}[H]
     \footnotesize
     \begin{algorithmic}[1]
-        \caption{\footnotesize $L^2$内でのsize-reduction}
+        \caption{\footnotesize $L^2$内でのsize-reduction\cite{NS05}}
         \label{alg_size_L2}
         \Require{パラメタ$\eta>1/2$，$\kappa\in\mathbb{Z}$，基底$\{\bm{b}_1,\ldots, \bm{b}_n\}$}
         \Ensure{$[\overline{r}_{\kappa, j}],~[\overline{\mu}_{\kappa, j}],~[\overline{s}_j^{(\kappa)}]~(j\le \kappa)$，簡約された基底$\{\ldots,\bm{b}_{\kappa-1},\bm{b}_{\kappa}',\bm{b}_{\kappa+1},\ldots\}$}
@@ -201,7 +202,7 @@ $\text{L}^2$アルゴリズムでは，大まかに次のようなことを行�
 \begin{algorithm}[H]
     \footnotesize
     \begin{algorithmic}[1]
-        \caption{\footnotesize $L^2$簡約}
+        \caption{\footnotesize $L^2$簡約\cite{NS05}}
         \label{alg_L2}
         \Require{パラメタ$\frac{1}{4}<\delta<1, \frac{1}{2}<\eta<\sqrt{\delta}$，基底$\{\bm{b}_1,\ldots,\bm{b}_n\}$}
         \Ensure{簡約された基底$\{\bm{b}_1,\ldots,\bm{b}_n\}$}
@@ -224,15 +225,14 @@ $\text{L}^2$アルゴリズムでは，大まかに次のようなことを行�
 \end{algorithm}
 \end{frame}
 
-\begin{frame}
+\begin{frame}{$\text{L}^2$の精度}
 \begin{itemize}
     \item $\frac{1}{4}<\delta<1, \frac{1}{2}<\eta<\sqrt{\delta}$：簡約パラメタ
     \item $\rho\coloneqq \frac{(1+\eta)^2}{\delta-\eta^2}$
-    \item $\{\bm{b}_1,\ldots,\bm{b}_n\}$：$n$次元格子$L$の基底
+    %\item $\{\bm{b}_1,\ldots,\bm{b}_n\}$：$n$次元格子$L$の基底
     \item fpaの精度$\ell$は$n\rho^n 2^{-\ell+2}\le 1$を満たす
     \item $M\coloneqq \max_{j<n} \abs{\mu_{n, j}}$
 \end{itemize}
-\cite{SE94}
 \begin{align}
     {}^\forall j\le{}^\forall i<n&,~\abs{\overline{r}_{i, j}-r_{i, j}}\le n\rho^{j-1}2^{-\ell+4}r_{j, j}\land \abs{\overline{\mu}_{i, j}-\mu_{i, j}}\le n\rho^{j-1}2^{-\ell+6}\\
     {}^\forall j < n&,~\abs{\overline{r}_{n, j}-r_{n, j}}\le n\rho^{j-1}M2^{-\ell+4}r_{j, j}\land \abs{\overline{\mu}_{n, j}-\mu_{n, j}}\le n\rho^{j-1}M2^{-\ell+6}
@@ -243,9 +243,26 @@ $\bm{b}_n$が$\{\bm{b}_1,\ldots,\bm{b}_n\}$に対して簡約パラメタ$\eta$�
 \end{equation}
 \end{frame}
 
+\begin{frame}{$\text{L}^2$の精度}
+\begin{itemize}
+    \item $\delta\approx 1, \eta\approx 1/2$のとき$\rho\approx 3$
+    \item $\ell=64~(\texttt{double})$のとき，$2^{-\ell+2}\approx 10^{-19}, 2^{-\ell+4}\approx 10^{-18}, 2^{-\ell+6}\approx 10^{-18}$
+\end{itemize}
+\begin{align*}
+&\abs{\overline{r}_{i, j}-r_{i, j}}\lessapprox 10^{-19}\times 3^jn r_{j, j}, \quad\abs{\overline{\mu}_{i, j}-\mu_{i, j}}\lessapprox 10^{-18}\times 3^{j}n\\
+%&\abs{\overline{r}_{n, j}-r_{n, j}}\lessapprox 10^{-19}\times 3^jn r_{j, j},\quad \abs{expression}
+&\abs{\overline{s}_{j}^{(n)}-s_{j}^{(n)}}\lessapprox 10^{-18}\times 3^j nr_{j, j}+10^{-19}ns_{j}^{(n)}
+\end{align*}
+\end{frame}
+
+\begin{frame}{$\text{DeepL}^2$への展望}
+
+\end{frame}
+
 \begin{frame}[allowframebreaks]{参考文献}
 \beamertemplatetextbibitems
 \bibliographystyle{plain}
+\typeout{}
 \bibliography{ref}
 \end{frame}
 \end{document}
