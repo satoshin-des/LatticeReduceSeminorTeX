@@ -187,7 +187,7 @@ $\text{L}^2$内でのsize-reductionでは，大まかに次のことを行う
 \end{algorithm}
 \end{frame}
 
-\begin{frame}{$\text{L}^2$アルゴリズム（1/2）}
+\begin{frame}{$\text{L}^2$アルゴリズム（1/3）}
 $\text{L}^2$アルゴリズムでは，大まかに次のようなことを行う
 \begin{enumerate}
     \item 基底をsize-reduce(Algorithm~\ref{alg_size_L2})するとともに，$[r_{i, j}], [\mu_{i, j}], [s_j^{\kappa}]$を計算
@@ -199,7 +199,7 @@ $\text{L}^2$アルゴリズムでは，大まかに次のようなことを行�
 \end{enumerate}
 \end{frame}
 
-\begin{frame}{$\text{L}^2$アルゴリズム（2/2）}
+\begin{frame}{$\text{L}^2$アルゴリズム（2/3）}
 \begin{algorithm}[H]
     \footnotesize
     \begin{algorithmic}[1]
@@ -224,6 +224,94 @@ $\text{L}^2$アルゴリズムでは，大まかに次のようなことを行�
         \EndWhile
     \end{algorithmic}
 \end{algorithm}
+\end{frame}
+
+\if 0
+\begin{frame}{$\text{L}^2$アルゴリズム（2/2）}
+\begin{algorithm}[H]
+    \footnotesize
+    \begin{algorithmic}[1]
+        \caption{\footnotesize $L^2$簡約\cite{NS05}}
+        \label{alg_L2_2}
+        \Require{パラメタ$\frac{1}{4}<\delta<1, \frac{1}{2}<\eta<\sqrt{\delta}$，基底$\{\bm{b}_1,\ldots,\bm{b}_n\}$}
+        \Ensure{簡約された基底$\{\bm{b}_1,\ldots,\bm{b}_n\}$}
+        \State $\overline{\delta}\gets(\delta+1)/2;~\overline{\eta}\gets\frac{\eta+1/2}{2}$
+        \State $\overline{r}_{1,1}\gets\diamond(\norm{\bm{b}_1}^2);~\kappa\gets 2$
+        \While{$\kappa\le n$}
+            \Loop
+                \If{$\max_{i<\kappa}\abs{\overline{\mu}_{\kappa, i}}>\overline{\eta}$}
+                    \For{$i=\kappa-1$ downto 1}
+                        $X\gets \round{\overline{\mu}_{\kappa, i}};~\bm{b}_\kappa\gets\bm{b}_\kappa-X\bm{b}_i$
+                        \State \textbf{for}~$j=1$~to~$i-1$~\textbf{do}~$\overline{\mu}_{\kappa, j}\gets\diamond(\mu_{\kappa, j}-\diamond(X\times \overline{\mu}_{i, j}))$~\textbf{endfor}
+                    \EndFor
+                \Else \textbf{break}
+                \EndIf
+            \EndLoop
+            \If{$\overline{\delta} \overline{r}_{\kappa-1, \kappa-1}<\overline{r}_{\kappa, \kappa}+\overline{\mu}_{\kappa, \kappa-1}^2\overline{r}_{\kappa-1, \kappa-1}$}
+                \State $\kappa\gets\kappa+1$
+            \Else
+                \State swap$(\bm{b}_{\kappa-1}, \bm{b}_\kappa)$
+                \State $\kappa\gets \max\{2, \kappa-1\}$
+            \EndIf
+        \EndWhile
+    \end{algorithmic}
+\end{algorithm}
+\end{frame}
+\fi
+
+\begin{frame}{$\text{L}^2$アルゴリズム（3/3）}
+\begin{minipage}[b]{0.45\columnwidth}
+\begin{algorithm}[H]
+    \footnotesize
+    \begin{algorithmic}[1]
+        \caption{\footnotesize size-reduction\cite{Stehle10}}
+        \label{alg_L2_2}
+        \Require{$\overline{\eta}$，$\kappa\in\mathbb{Z}$，基底$\{\bm{b}_1,\ldots, \bm{b}_n\}$}
+        \Ensure{簡約された基底$\{\bm{b}_1,\ldots,\bm{b}_n\}$}
+            \Loop
+                \If{$\max_{i<\kappa}\abs{\overline{\mu}_{\kappa, i}}>\overline{\eta}$}
+                    \For{$i=\kappa-1$ downto 1}
+                        \State $X\gets \round{\overline{\mu}_{\kappa, i}}$
+                        \State $\bm{b}_\kappa\gets\bm{b}_\kappa-X\bm{b}_i$
+                        \For{$j=1$~to~$i-1$}
+                            \State $\overline{\mu}_{\kappa, j}\gets\diamond(\mu_{\kappa, j}-\diamond(X\times \overline{\mu}_{i, j}))$
+                        \EndFor
+                        % \State \textbf{for}~$j=1$~to~$i-1$~\textbf{do}~$\overline{\mu}_{\kappa, j}\gets\diamond(\mu_{\kappa, j}-\diamond(X\times \overline{\mu}_{i, j}))$~\textbf{endfor}
+                    \EndFor
+                \Else
+                    \State \textbf{break}
+                \EndIf
+            \EndLoop
+    \end{algorithmic}
+\end{algorithm}
+\mbox{}\\
+\mbox{}\\
+%\mbox{}\\
+\end{minipage}
+\hspace{0.03\columnwidth} % ここで隙間作成
+\begin{minipage}[b]{0.45\columnwidth}
+\begin{algorithm}[H]
+    \footnotesize
+    \begin{algorithmic}[1]
+        \caption{\footnotesize $L^2$簡約\cite{Stehle10}}
+        \label{alg_L2_2}
+        \Require{パラメタ$\frac{1}{4}<\delta<1, \frac{1}{2}<\eta<\sqrt{\delta}$，基底$\{\bm{b}_1,\ldots,\bm{b}_n\}$}
+        \Ensure{簡約された基底$\{\bm{b}_1,\ldots,\bm{b}_n\}$}
+        \State $\overline{\delta}\gets(\delta+1)/2;~\overline{\eta}\gets\frac{\eta+1/2}{2}$
+        \State $\overline{r}_{1,1}\gets\diamond(\norm{\bm{b}_1}^2);~\kappa\gets 2$
+        \While{$\kappa\le n$}
+            \State $\texttt{sizeReduce}(\overline{\eta}, \kappa)$
+            \If{$\overline{\delta} \overline{r}_{\kappa-1, \kappa-1}<\overline{r}_{\kappa, \kappa}+\overline{\mu}_{\kappa, \kappa-1}^2\overline{r}_{\kappa-1, \kappa-1}$}
+                \State $\kappa\gets\kappa+1$
+            \Else
+                \State swap$(\bm{b}_{\kappa-1}, \bm{b}_\kappa)$
+                \State $\kappa\gets \max\{2, \kappa-1\}$
+            \EndIf
+        \EndWhile
+    \end{algorithmic}
+\end{algorithm}
+    \mbox{}\\
+\end{minipage}
 \end{frame}
 
 \begin{frame}{$\text{L}^2$の精度}
