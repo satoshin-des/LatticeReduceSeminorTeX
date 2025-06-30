@@ -1,5 +1,5 @@
 \RequirePackage{plautopatch}
-\documentclass[12pt,aspectratio=169,xcolor=dvipsnames,table,dvipdfmx, leqno]{beamer}
+\documentclass[12pt,aspectratio=169,table,dvipdfmx, leqno]{beamer}
 
 \usepackage{bxdpx-beamer}
 \usepackage{mathtools}
@@ -12,16 +12,16 @@
 \usepackage{subcaption}
 \usepackage{color}
 \usepackage{multirow}
-\usepackage[all]{xy}
-\usepackage[T1]{fontenc}
-\usepackage{newtxtext} % 数式以外をTXフォントで上書き
+%\usepackage[T1]{fontenc}
+%\usepackage{newtxtext} % 数式以外をTXフォントで上書き
 \usepackage{ulem}
-\usepackage[deluxe,uplatex]{otf} % 日本語多ウェイト化
+%\usepackage[deluxe,uplatex]{otf} % 日本語多ウェイト化
 %\usepackage[linesnumbered,ruled]{algorithm2e}
 \usepackage{algorithm}
 \usepackage[noend]{algpseudocode}
 \usepackage{tikz}
 
+%\addbibresource{ref.bib}
 
 %Beamerの設定
 \usetheme{Boadilla}
@@ -61,7 +61,7 @@
 \newtheorem{Proposition}[theorem]{命題}
 
 %タイトル
-\title[勉強会]{勉強会形式ゼミ資料①\\P.Q.Nguyen and D. Stehle Floating-Point LLL Revisited}
+\title[勉強会]{勉強会形式ゼミ資料①\\P.Q.Nguyen and D. Stehle Floating-Point LLL Revisited\cite{NS05}}
 \author[佐藤]{佐藤 新}
 \date{\today}
 %\institute[]{\inst{1}~立教大学}
@@ -70,7 +70,7 @@
 \maketitle
 
 \begin{frame}
-    本セミナーで用いられる記号など
+    本セミナーで用いられる記号など（\cite{NS05}に倣った記号）
     \begin{itemize}
         \item 全て$\{\bm{b}_1,\ldots,\bm{b}_n\}$を基底としてもつ整数格子
         \item $B=\max\{\norm{b}_i~|~1\le i\le n\}$
@@ -174,7 +174,7 @@ $\text{L}^2$内でのsize-reductionでは，大まかに次のことを行う
                 \State $\overline{\mu}_{\kappa, j}\gets \diamond(\overline{r}_{\kappa, j}/\overline{r}_{j, j})$
             \EndFor
             \State $s_0^{(\kappa)}\gets \norm{\bm{b}_n}^2$
-            \State \textbf{for} $k = 1$ to $j-1$ \textbf{do} $\overline{s}_j^{(\kappa)}\gets \diamond(\overline{s}_{j-1}^{(\kappa)}-\diamond(\overline{\mu}_{n, j}\times\overline{r}_{n, j}))$~\textbf{endfor};~$r_{n, n}\gets s_n^{(\kappa)}$
+            \State \textbf{for} $j = 1$ to $n$ \textbf{do} $\overline{s}_j^{(\kappa)}\gets \diamond(\overline{s}_{j-1}^{(\kappa)}-\diamond(\overline{\mu}_{n, j}\times\overline{r}_{n, j}))$~\textbf{endfor};~$r_{n, n}\gets s_n^{(\kappa)}$
             \For{$i=\kappa-1$ downto 1}
                 \State \textbf{if} $\abs{\overline{\mu}_{\kappa, i}}\ge \overline{\eta}$ \textbf{then} $X_i\gets \round{\overline{\mu}_{\kappa, i}}$ \textbf{else} $X_i\gets 0$\Comment{$\abs{\mu_{\kappa, i}}$により係数ベクトルを決定}
                 \State \textbf{for} $j=1$ to $i-1$ \textbf{do} $\overline{\mu}_{\kappa, j}\gets \diamond(\overline{\mu}_{\kappa, j}-\diamond(X_i\times\overline{\mu}_{i, j}))$
@@ -217,11 +217,30 @@ $\text{L}^2$アルゴリズムでは，大まかに次のようなことを行�
             \For{$i=1$ to $\kappa-1$}
                 \State $\overline{\mu}_{\kappa, i}\gets\overline{\mu}_{\kappa', i};~\overline{r}_{\kappa, i}\gets\overline{r}_{\kappa', i};~\overline{r}_{\kappa, \kappa}\gets\overline{s}_{\kappa}^{(\kappa')}$
             \EndFor
-            \State $\{\bm{b}_1,\ldots,\bm{b}_n\}\gets\{\ldots, \bm{b}_{\kappa'-1}, \bm{b}_{\kappa'+1},\ldots,\bm{b}_{\kappa'}, \bm{b}_\kappa, \ldots\}$
+            \State $\{\bm{b}_1,\ldots,\bm{b}_n\}\gets\{\ldots,\bm{b}_{\kappa-1}, \bm{b}_{\kappa'}, \bm{b}_{\kappa},\ldots,\bm{b}_{\kappa'-1},\bm{b}_{\kappa'+1},\ldots\}$%\{\ldots, \bm{b}_{\kappa'-1}, \bm{b}_{\kappa'+1},\ldots,\bm{b}_{\kappa-1},\bm{b}_{\kappa'}, \bm{b}_\kappa, \ldots\}$
             \State $\kappa\gets \kappa+1$
         \EndWhile
     \end{algorithmic}
 \end{algorithm}
+\end{frame}
+
+\begin{frame}
+\begin{itemize}
+    \item $\frac{1}{4}<\delta<1, \frac{1}{2}<\eta<\sqrt{\delta}$：簡約パラメタ
+    \item $\rho\coloneqq \frac{(1+\eta)^2}{\delta-\eta^2}$
+    \item $\{\bm{b}_1,\ldots,\bm{b}_n\}$：$n$次元格子$L$の基底
+    \item fpaの精度$\ell$は$n\rho^n 2^{-\ell+2}\le 1$を満たす
+    \item $M\coloneqq \max_{j<n} \abs{\mu_{n, j}}$
+\end{itemize}
+\cite{SE94}
+\begin{align}
+    {}^\forall j\le{}^\forall i<n&,~\abs{\overline{r}_{i, j}-r_{i, j}}\le n\rho^{j-1}2^{-\ell+4}r_{j, j}\land \abs{\overline{\mu}_{i, j}-\mu_{i, j}}\le n\rho^{j-1}2^{-\ell+6}\\
+    {}^\forall j < n&,~\abs{\overline{r}_{n, j}-r_{n, j}}\le n\rho^{j-1}M2^{-\ell+4}r_{j, j}\land \abs{\overline{\mu}_{n, j}-\mu_{n, j}}\le n\rho^{j-1}M2^{-\ell+6}
+\end{align}
+$\bm{b}_n$が$\{\bm{b}_1,\ldots,\bm{b}_n\}$に対して簡約パラメタ$\eta$に関してサイズ簡約されているとき
+\begin{equation}
+    \abs{\overline{s}_{j}^{(n)}-s_{j}^{(n)}}\le n\rho^{j-1}2^{-\ell+7}r_{j, j}+n2^{-\ell}s_{j}^{(n)}
+\end{equation}
 \end{frame}
 
 \begin{frame}[allowframebreaks]{参考文献}
