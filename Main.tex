@@ -71,12 +71,13 @@
 \maketitle
 
 \begin{frame}
-    本セミナーで用いられる記号など（\cite{NS05}に倣った記号）
+    本セミナーで用いられる記号など（基本は\cite{NS05}に倣った記号）
     \begin{itemize}
         \item 全て$\{\bm{b}_1,\ldots,\bm{b}_n\}$を基底としてもつ整数格子
         \item $B=\max\{\norm{b}_i~|~1\le i\le n\}$
         \item 浮動小数点数の演算精度は$\ell$-bit
         \item $\diamond(a*b)$は$a*b$の浮動小数点演算$(*\in\{+, -, \times, /\})$
+        \item $\pi_\ell:\mathbb{R}^n\to \langle\bm{b}_1,\ldots,\bm{b}_{\ell-1}\rangle_\mathbb{R}^\perp$：$\langle\bm{b}_1,\ldots,\bm{b}_{\ell-1}\rangle^\perp$への直交射影
     \end{itemize}
 \end{frame}
 
@@ -98,7 +99,7 @@
     \[
     r_{i, j}=\langle \bm{b}_i, \bm{b}_j\rangle-\sum_{k=1}^{j-1}\mu_{j, k}r_{i, k},~\mu_{i, j}=\frac{r_{i, j}}{r_{j, j}}\quad(i\ge j)
     \]
-    という公式で計算可能な形で情報を持つ\\
+    という公式で計算可能な形で情報を持つ$~(r_{i, i}=\norm{\bm{b}_i^\star}^2, r_{i, j}=\langle\bm{b}_i, \bm{b}_j^\star\rangle=\mu_{i, j}\norm{\bm{b}_j^\star}^2)$\\
     $\quad\quad\rightsquigarrow$精度が改善される
     \begin{itemize}
         \item 内積はGram行列から得られる（fpa）である必要なし
@@ -108,16 +109,16 @@
 
 \begin{frame}{Gram-Schmidtの計算（3/5）}{Lov\'asz条件の書き換え}
 \[
-s_j^{(i)}\coloneqq \norm{\bm{b}_i}^2-\sum_{k=1}^{j-1}\mu_{i, k}r_{i, k}\quad(1\le j\le i)
+    s_j^{(i)}\coloneqq \norm{\bm{b}_i}^2-\sum_{k=1}^{j-1}\mu_{i, k}r_{i, k}\quad(1\le j\le i)
 \]
 とすると，Lov\'asz条件$\delta\norm{\bm{b}_{\kappa-1}^\star}^2\le \norm{\bm{b}_\kappa^\star}^2+\mu_{\kappa, \kappa-1}^2\norm{\bm{b}_{\kappa-1}^\star}^2$は
 \begin{align*}
-\norm{\bm{b}_\kappa^\star}^2+\mu_{\kappa, \kappa-1}^2\norm{\bm{b}_{\kappa-1}^\star}^2&=\norm{\bm{b}_\kappa}^2-\sum_{j=1}^{\kappa-2}\mu_{\kappa, j}^2\norm{\bm{b}_j^\star}^2=\norm{\bm{b}_\kappa}^2-\sum_{j=1}^{\kappa-2}\mu_{\kappa, j}r_{\kappa, j}\norm{\bm{b}_j^\star}^2\\
-&=s_{\kappa-1}^{(\kappa)}
+    \norm{\bm{b}_\kappa^\star}^2+\mu_{\kappa, \kappa-1}^2\norm{\bm{b}_{\kappa-1}^\star}^2&=\norm{\bm{b}_\kappa}^2-\sum_{j=1}^{\kappa-2}\mu_{\kappa, j}^2\norm{\bm{b}_j^\star}^2=\norm{\bm{b}_\kappa}^2-\sum_{j=1}^{\kappa-2}\mu_{\kappa, j}r_{\kappa, j}\\
+    &=s_{\kappa-1}^{(\kappa)}
 \end{align*}
 より
 \[
-\delta r_{\kappa-1, \kappa-1}\le s_{\kappa-1}^{(\kappa)}
+    \delta r_{\kappa-1, \kappa-1}\le s_{\kappa-1}^{(\kappa)}
 \]
 と書き換えることができる．
 \end{frame}
@@ -256,7 +257,15 @@ $\bm{b}_n$が$\{\bm{b}_1,\ldots,\bm{b}_n\}$に対して簡約パラメタ$\eta$�
 \end{frame}
 
 \begin{frame}{$\text{DeepL}^2$への展望}
-
+\begin{itemize}
+    \item deep-insertion後のdeep-exchange条件の変化に関する考察\\
+    \underline{\textbf{deep-exchange条件}}
+    \begin{align*}
+        \delta \norm{\bm{b}_i^\star}^2\le \norm{\pi_i(\bm{b}_\kappa)}^2&\iff \delta \norm{\bm{b}_i^\star}^2\le \norm{\bm{b}_{\kappa}}^2-\sum_{j=1}^{i-1}\mu_{\kappa, j}^2\norm{\bm{b}_j^\star}^2&\\
+        &\iff \delta r_{i, i}\le s_\kappa^{(i)}&(1\le {}^\forall i<{}^\forall\kappa\le n)
+    \end{align*}
+    \item $[r_{i, j}], [\mu_{i, j}], [s_j^{(i)}]$のサイズ簡約外での更新
+\end{itemize}
 \end{frame}
 
 \begin{frame}[allowframebreaks]{参考文献}
