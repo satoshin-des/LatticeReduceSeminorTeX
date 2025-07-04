@@ -1,0 +1,87 @@
+\RequirePackage{plautopatch}
+\documentclass[12pt,aspectratio=169,table,dvipdfmx, leqno]{beamer}
+
+\usepackage[square,numbers]{natbib}
+\usepackage{bxdpx-beamer}
+\usepackage{mathtools}
+\usepackage{amsmath,amsthm,amssymb,amscd}
+\usepackage{ascmac}
+\usepackage{physics}
+\usepackage{here}
+\usepackage{url}
+\usepackage{bm}
+\usepackage{subcaption}
+\usepackage{color}
+\usepackage{multirow}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext} % 数式以外をTXフォントで上書き
+\usepackage{ulem}
+\usepackage[deluxe,uplatex]{otf} % 日本語多ウェイト化
+%\usepackage[linesnumbered,ruled]{algorithm2e}
+\usepackage{algorithm}
+\usepackage[noend]{algpseudocode}
+\usepackage{tikz}
+
+%\addbibresource{ref.bib}
+
+%Beamerの設定
+\usetheme{Boadilla}
+
+%Beamerフォント設定
+\usefonttheme{professionalfonts} % Be professional!
+\renewcommand{\familydefault}{\sfdefault}  % 英文をサンセリフ体に
+\renewcommand{\kanjifamilydefault}{\gtdefault}  % 日本語をゴシック体に
+\renewcommand{\Comment}[1]{\quad/*~#1~*/}
+\newcommand{\vol}{\text{vol}}
+\newcommand{\round}[1]{\left\lfloor #1 \right\rceil}
+\newcommand{\bhline}{\noalign{\hrule height 1.0pt}}
+\DeclareMathOperator{\Pot}{Pot}
+\DeclareFontFamily{U}{mathx}{}
+\DeclareFontShape{U}{mathx}{m}{n}{<-> mathx10}{}
+\DeclareSymbolFont{mathx}{U}{mathx}{m}{n}
+\DeclareMathAccent{\widecheck}{0}{mathx}{"71}
+
+\algdef{SE}[DOWHILE]{Do}{doWhile}{\algorithmicdo}[1]{\algorithmicwhile\ #1}%
+
+% Babel (日本語の場合のみ・英語の場合は不要)
+\uselanguage{japanese}
+\languagepath{japanese}
+\deftranslation[to=japanese]{Theorem}{定理}
+\deftranslation[to=japanese]{Lemma}{補題}
+\deftranslation[to=japanese]{Example}{例}
+\deftranslation[to=japanese]{Examples}{例}
+\deftranslation[to=japanese]{Definition}{定義}
+\deftranslation[to=japanese]{Definitions}{定義}
+\deftranslation[to=japanese]{Problem}{問題}
+\deftranslation[to=japanese]{Solution}{解}
+\deftranslation[to=japanese]{Fact}{事実}
+\deftranslation[to=japanese]{Proof}{証明}
+\def\proofname{証明}
+
+\setbeamertemplate{theorems}[numbered]
+\newtheorem{Proposition}[theorem]{命題}
+
+%タイトル
+\title[勉強会]{勉強会形式ゼミ資料②\\L. Ducas, L. N. Pulles and M. Stevens Towards a modern LLL implementation\cite{DPS25}}
+\author[佐藤]{佐藤 新}
+\date{\today}
+%\institute[]{\inst{1}~立教大学}
+
+\begin{document}
+\maketitle
+
+\begin{frame}{Seysen簡約}
+\begin{itemize}
+    \item $\{\bm{b}_1,\ldots, \bm{b}_n\}$: 基底
+    \item 
+\end{itemize}
+\end{frame}
+
+\begin{frame}[allowframebreaks]{参考文献}
+\beamertemplatetextbibitems
+\bibliographystyle{plain}
+\typeout{}
+\bibliography{ref}
+\end{frame}
+
+\end{document}
