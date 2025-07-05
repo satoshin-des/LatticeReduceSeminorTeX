@@ -79,6 +79,18 @@
     \end{itemize}
 \end{frame}
 
+\begin{frame}{\cite{DPS25}の貢献}
+    \begin{itemize}
+        \item BLASterの提案
+        \begin{itemize}
+            \item 高速かつモダンなLLLの実装
+            \item \cite{NS16}の分割手法を利用
+            \item サイズ簡約をSeysen簡約に置き換え
+            \item Cholesky分解をQR分解に置き換え
+        \end{itemize}
+    \end{itemize}
+\end{frame}
+
 \begin{frame}{Seysen簡約（1/3）}
 \begin{itemize}
     \item $\{\bm{b}_1,\ldots, \bm{b}_n\}$: 基底
@@ -97,8 +109,9 @@
 \begin{frame}{Seysen簡約（2/3）}
     Seysen簡約は大まかには次のようなことを$\bm{B}=\bm{RQ}$なる$\bm{R}$に対して再帰的に行う．
     \begin{enumerate}
+        \item $\bm{R}$が$1$次正方なら何もしない
         \item $\bm{R}$を$\mqty[\bm{R}_{1, 1} & \bm{O}\\ \bm{R}_{2, 1} & \bm{R}_{2, 2}]$とブロックに分ける
-        \item 
+        \item $\bm{R}_{1, 1}, \bm{R}_{2, 2}$をそれぞれSeysen簡約
     \end{enumerate}
 \end{frame}
 
@@ -114,12 +127,40 @@
             \State \textbf{return}~$[1]$
         \EndIf
         \State $\mqty[\bm{R}_{1, 1} & \bm{O}\\ \bm{R}_{2, 1} & \bm{R}_{2, 2}]\gets \bm{R}$ \Comment{$\bm{R}_{1, 1}\in M_{\lfloor n\rfloor}(\mathbb{R})$，$\bm{R}_{2, 1}\in M_{n-\lfloor n\rfloor, \lfloor n\rfloor}(\mathbb{R})$，$\bm{R}_{2, 2}\in M_{n-\lfloor n\rfloor, n-\lfloor n\rfloor}(\mathbb{R})$}
-        \State $\bm{U}_{1, 1}\gets \texttt{seysenReduce}(\bm{R}_{1, 1})$
-        \State $\bm{U}_{2, 2}\gets \texttt{seysenReduce}(\bm{R}_{2, 2})$
+        \State $\bm{U}_{1, 1}\gets \texttt{seysenReduce}(\bm{R}_{1, 1});~\bm{U}_{2, 2}\gets \texttt{seysenReduce}(\bm{R}_{2, 2})$
         \State $\bm{R}_{2, 1}\gets \bm{U}_{2, 2}\bm{R}_{2, 1}$
         \State $\bm{U}_{2, 1}\gets \round{-\bm{R}_{2, 1}\bm{R}_{1, 1}^{-1}}$
         \State $\bm{R}_{2, 1}\gets \bm{U}_{2, 1}\bm{R}_{1, 1}+\bm{R}_{2, 1}$
         \State \textbf{return}~$\mqty[\bm{U}_{1, 1} & \bm{O}\\ \bm{U}_{2, 1}\bm{U}_{1, 1} & \bm{U}_{2, 2}]$
+    \end{algorithmic}
+\end{algorithm}
+\end{frame}
+
+\begin{frame}%{\texttt{BLASter}~LLLアルゴリズム}
+\begin{algorithm}[H]
+    \footnotesize
+    \begin{algorithmic}[1]
+        \caption{\footnotesize BLASter LLLアルゴリズム\cite{DPS25}}
+        \label{alg_blaster_lll}
+        \Require{下三角行列$\bm{R}\in M_{n}(\mathbb{R})$~s.t.~$\bm{B}=\bm{RQ}$}
+        \Ensure{$\bm{UB}$が簡約基底行列となるようなunimodular行列$\bm{U}\in M_{n}(\mathbb{R})$}
+        \State $i_0\gets 0;~\bm{U}\gets \bm{E}_n$
+        \Do
+            \State $\bm{R}\gets \bm{B}=\bm{RQ}$なる下三角行列$\bm{R}~(\bm{Q}:~\text{直交行列})$
+            \State $i_0\gets \ell/2-i_0$
+            \State $\mathcal{I}\gets \{(i_0+k\ell+1, \min\{n, i_0+k\ell+\ell\})~|~0\le k<(n-i_0)/\ell\}$
+            \State \textbf{for}~$(i, j)\in\mathcal{I}$~\textbf{do}~$\bm{V}_i\gets \texttt{LLL}(\bm{R}_{[i, j]\times [i, j]}, \delta)$~\textbf{endfor}
+            \For{$(i, j)\in\mathcal{I}$}
+                \State $\bm{B}_{[i, j]\times [1, n]}\gets \bm{V}_i\bm{B}_{[i, j]\times [1, n]};~\bm{U}_{[i, j]\times [1, n]}\gets \bm{V}_i\bm{U}_{[i, j]\times [1, n]}$
+            \EndFor
+            %\State \textbf{for}~$(i, j)\in\mathcal{I}$~\textbf{do}~$\bm{B}_{[i, j]\times [1, n]}\gets \bm{V}_i\bm{B}_{[i, j]\times [1, n]};~\bm{U}_{[i, j]\times [1, n]}\gets \bm{V}_i\bm{U}_{[i, j]\times [1, n]}$~\textbf{endfor}
+            \State $\bm{R}\gets \bm{B}=\bm{RQ}$なる下三角行列$\bm{R}~(\bm{Q}:~\text{直交行列})$
+            \State $\bm{W}\gets \texttt{seysenReduce}(\bm{R});~\bm{B}\gets\bm{WB};~\bm{U}\gets\bm{WU}$
+            \State $f\gets \texttt{true}$
+            \For{$i=1$to$n-1$}
+                \State \textbf{if}~$\delta r_{i, i}^2> r_{i, i+1}^2+r_{i+1, i+1}^2$~\textbf{then}~$f\gets\texttt{false};~\textbf{break}$~\textbf{endif}
+            \EndFor
+        \doWhile{not~$f$}
     \end{algorithmic}
 \end{algorithm}
 \end{frame}
