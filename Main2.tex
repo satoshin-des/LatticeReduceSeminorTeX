@@ -68,13 +68,60 @@
 %\institute[]{\inst{1}~立教大学}
 
 \begin{document}
-\maketitle
+\begin{frame}
+    \maketitle
+\end{frame}
 
-\begin{frame}{Seysen簡約}
+\begin{frame}
+    本セミナーで用いられる記号など
+    \begin{itemize}
+        \item $\bm{A}\in M_{n, m}(\mathbb{R})$に対して，$\norm{\bm{A}}_{\max}\coloneqq \max_{i, j}\abs{a_{i, j}}$
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Seysen簡約（1/3）}
 \begin{itemize}
     \item $\{\bm{b}_1,\ldots, \bm{b}_n\}$: 基底
-    \item 
+    \item $\bm{B}=(\bm{b}_1^\top, \ldots, \bm{b}_n^\top)^\top$: 基底行列
+    \item $\bm{B}=\bm{RQ}~(\bm{R}:~\text{下三角行列},~\bm{Q}:~\text{直交行列})$
+    \item $\bm{R}=\mqty[\bm{R}_{1, 1} & \bm{O}_{\lfloor n/2\rfloor, n-\lfloor n/2\rfloor}\\ \bm{R}_{2, 1} & \bm{R}_{2, 2}]$
 \end{itemize}
+\begin{definition}[Seysen簡約]
+    $\{\bm{b}_1,\ldots, \bm{b}_n\}$がSeysen簡約されているとは
+    \[
+        \bm{R}_{1, 1},~\bm{R}_{2, 2}\text{がSeysen簡約されている}\land \norm{\bm{R}_{2, 1}\bm{R}_{1, 1}^{-1}}_{\max}\le \frac{1}{2}
+    \]
+\end{definition}
+\end{frame}
+
+\begin{frame}{Seysen簡約（2/3）}
+    Seysen簡約は大まかには次のようなことを$\bm{B}=\bm{RQ}$なる$\bm{R}$に対して再帰的に行う．
+    \begin{enumerate}
+        \item $\bm{R}$を$\mqty[\bm{R}_{1, 1} & \bm{O}\\ \bm{R}_{2, 1} & \bm{R}_{2, 2}]$とブロックに分ける
+        \item 
+    \end{enumerate}
+\end{frame}
+
+\begin{frame}{Seysen簡約（3/3）}
+\begin{algorithm}[H]
+    \footnotesize
+    \begin{algorithmic}[1]
+        \caption{\footnotesize Seysen簡約\cite{DPS25}}
+        \label{alg_seysen}
+        \Require{下三角行列$\bm{R}\in M_{n}(\mathbb{R})$~s.t.~$\bm{B}=\bm{RQ}$}
+        \Ensure{$\bm{UB}$が簡約基底行列となるようなunimodular行列$\bm{U}\in M_{n}(\mathbb{R})$}
+        \If{$\bm{R}\in M_{1}(\mathbb{R})$}
+            \State \textbf{return}~$[1]$
+        \EndIf
+        \State $\mqty[\bm{R}_{1, 1} & \bm{O}\\ \bm{R}_{2, 1} & \bm{R}_{2, 2}]\gets \bm{R}$ \Comment{$\bm{R}_{1, 1}\in M_{\lfloor n\rfloor}(\mathbb{R})$，$\bm{R}_{2, 1}\in M_{n-\lfloor n\rfloor, \lfloor n\rfloor}(\mathbb{R})$，$\bm{R}_{2, 2}\in M_{n-\lfloor n\rfloor, n-\lfloor n\rfloor}(\mathbb{R})$}
+        \State $\bm{U}_{1, 1}\gets \texttt{seysenReduce}(\bm{R}_{1, 1})$
+        \State $\bm{U}_{2, 2}\gets \texttt{seysenReduce}(\bm{R}_{2, 2})$
+        \State $\bm{R}_{2, 1}\gets \bm{U}_{2, 2}\bm{R}_{2, 1}$
+        \State $\bm{U}_{2, 1}\gets \round{-\bm{R}_{2, 1}\bm{R}_{1, 1}^{-1}}$
+        \State $\bm{R}_{2, 1}\gets \bm{U}_{2, 1}\bm{R}_{1, 1}+\bm{R}_{2, 1}$
+        \State \textbf{return}~$\mqty[\bm{U}_{1, 1} & \bm{O}\\ \bm{U}_{2, 1}\bm{U}_{1, 1} & \bm{U}_{2, 2}]$
+    \end{algorithmic}
+\end{algorithm}
 \end{frame}
 
 \begin{frame}[allowframebreaks]{参考文献}
