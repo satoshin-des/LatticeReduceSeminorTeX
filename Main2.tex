@@ -107,15 +107,16 @@
         \State $\overline{\beta}\gets 2+\lceil \log_2{(\sqrt{n}(\max_{i\le n}\norm{\bm{b}_i})^n)}\rceil$
         \For{$t=1$~to~$(n/n_r)^2\lceil \log(\overline{\beta}/\eta)\rceil$}
             \For{$k=0$~to~$n-n_r$}
-                \State $B'\gets B_{[k+1, n_r+k]};~\bm{U}'\gets \bm{U}_{[k+1, n_r+k]\times [k+1, n_r+k]}$
+                \State $B'\gets B_{[k+1, n_r+k]}$
+                \State $\bm{U}'\gets \bm{U}_{[k+1, n_r+k]}$
                 \State $\bm{V}\gets\texttt{recReduce}(B', \bm{U}', \eta, \overline{\beta})$
-                \State $\bm{V}'\gets \bm{E}_n$
-                \State $\bm{B}\gets \bm{V}'\bm{B}$
+                \State $\bm{V}'\gets \bm{E}_n;~\bm{B}\gets \bm{V}'\bm{B}$
                 \State $\texttt{sizeReduce}(\bm{B})$
             \EndFor
         \EndFor
     \end{algorithmic}
 \end{algorithm}
+\mbox{}\\
 \mbox{}\\
 \mbox{}\\
 \mbox{}\\
@@ -129,19 +130,23 @@
         \label{alg_L2_2}
         \Require{パラメタ$\frac{1}{4}<\delta<1, \frac{1}{2}<\eta<\sqrt{\delta}$，基底$\{\bm{b}_1,\ldots,\bm{b}_n\}$}
         \Ensure{簡約された基底$\{\bm{b}_1,\ldots,\bm{b}_n\}$}
-        \State $\overline{\delta}\gets(\delta+1)/2;~\overline{\eta}\gets\frac{\eta+1/2}{2}$
-        \State $\overline{r}_{1,1}\gets\diamond(\norm{\bm{b}_1}^2);~\kappa\gets 2$
-        \While{$\kappa\le n$}
-            \State $\texttt{sizeReduce}(\overline{\eta}, \kappa)$
-            \If{$\overline{\delta} \overline{r}_{\kappa-1, \kappa-1}<\overline{r}_{\kappa, \kappa}+\overline{\mu}_{\kappa, \kappa-1}^2\overline{r}_{\kappa-1, \kappa-1}$}
-                \State $\kappa\gets\kappa+1$
-            \Else
-                \State swap$(\bm{b}_{\kappa-1}, \bm{b}_\kappa)$
-                \State $\kappa\gets \max\{2, \kappa-1\}$
-            \EndIf
-        \EndWhile
+        \State \textbf{if}~$n=2$~\textbf{then}~Schonhageのアルゴリズム~\textbf{endif}
+        \State $\bm{V}\gets \bm{E}_n$
+        \For{$t=1$~to$(2n_r/n_{r-1})^2\lceil \log{(8\overline{\beta}/\eta)}\rceil$}
+            \For{$k=2(n_r/n_{r-1})^2$~downto~$0$}
+                \State $B'\gets B_{[kn_{r-1}/2+1, kn_{r-1}/2+n_{r-1}]}$
+                \State $\bm{U}'\gets \bm{U}_{[kn_{r-1}/2+1, kn_{r-1}/2+n_{r-1}]}$
+                \State $\bm{V}'=\texttt{recReduce}(B', \bm{U}', \eta, \overline{\beta})$
+                \State $\bm{V}''\gets\bm{E}_{n_r}$
+                \State $\bm{V}\gets \bm{V}''\bm{V}\bmod 2^{\overline{\beta}}$
+                \State $\texttt{sizeReduce}(B, \bm{U})$
+            \EndFor
+        \EndFor
     \end{algorithmic}
 \end{algorithm}
+    \mbox{}\\
+    \mbox{}\\
+    \mbox{}\\
     \mbox{}\\
 \end{minipage}
 \end{frame}
