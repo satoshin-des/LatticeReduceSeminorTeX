@@ -31,7 +31,7 @@
 \usefonttheme{professionalfonts} % Be professional!
 \renewcommand{\familydefault}{\sfdefault}  % 英文をサンセリフ体に
 \renewcommand{\kanjifamilydefault}{\gtdefault}  % 日本語をゴシック体に
-\renewcommand{\Comment}[1]{\quad/*~#1~*/}
+\renewcommand{\Comment}[1]{\quad\texttt{/*}~#1~\texttt{*/}}
 \newcommand{\vol}{\text{vol}}
 \newcommand{\round}[1]{\left\lfloor #1 \right\rceil}
 \newcommand{\bhline}{\noalign{\hrule height 1.0pt}}
@@ -76,6 +76,7 @@
     本セミナーで用いられる記号など
     \begin{itemize}
         \item $\bm{A}\in M_{n, m}(\mathbb{R})$に対して，$\norm{\bm{A}}_{\max}\coloneqq \max_{i, j}\abs{a_{i, j}}$
+        \item $\bm{A}\in M_{n, m}(\mathbb{R})$に対して，$\bm{A}_{[r, s]\times [t, u]}\coloneqq [a_{i, j}]_{r\le i\le s, t\le j\le u}$
     \end{itemize}
 \end{frame}
 
@@ -91,6 +92,60 @@
     \end{itemize}
 \end{frame}
 
+\begin{frame}{\cite{NS16}の分割手法}
+\begin{minipage}[b]{0.45\columnwidth}
+\begin{algorithm}[H]
+    \footnotesize
+    \begin{algorithmic}[1]
+        \caption{\footnotesize Reduce\cite{NS16}}
+        \label{alg_REDUCE}
+        \Require{格子$L$の基底行列$\bm{B}\in M_{n}(\mathbb{Z})$，簡約パラメタ$0<\eta\le 1$}
+        \Ensure{簡約された基底$\{\bm{b}_1,\ldots,\bm{b}_n\}$}
+        \State $n_r\gets n$以下最大のspecific~dimension
+        \State computes GSO~$B\gets[\norm{\bm{b}_i}^\star], \bm{U}\gets [\mu_{i, j}]$
+        \State $\texttt{sizeReduce}(\bm{B})$
+        \State $\overline{\beta}\gets 2+\lceil \log_2{(\sqrt{n}(\max_{i\le n}\norm{\bm{b}_i})^n)}\rceil$
+        \For{$t=1$~to~$(n/n_r)^2\lceil \log(\overline{\beta}/\eta)\rceil$}
+            \For{$k=0$~to~$n-n_r$}
+                \State $B'\gets B_{[k+1, n_r+k]};~\bm{U}'\gets \bm{U}_{[k+1, n_r+k]\times [k+1, n_r+k]}$
+                \State $\bm{V}\gets\texttt{recReduce}(B', \bm{U}', \eta, \overline{\beta})$
+                \State $\bm{V}'\gets \bm{E}_n$
+                \State $\bm{B}\gets \bm{V}'\bm{B}$
+                \State $\texttt{sizeReduce}(\bm{B})$
+            \EndFor
+        \EndFor
+    \end{algorithmic}
+\end{algorithm}
+\mbox{}\\
+\mbox{}\\
+\mbox{}\\
+\end{minipage}
+\hspace{0.03\columnwidth} % ここで隙間作成
+\begin{minipage}[b]{0.45\columnwidth}
+\begin{algorithm}[H]
+    \footnotesize
+    \begin{algorithmic}[1]
+        \caption{\footnotesize $L^2$簡約\cite{Stehle10}}
+        \label{alg_L2_2}
+        \Require{パラメタ$\frac{1}{4}<\delta<1, \frac{1}{2}<\eta<\sqrt{\delta}$，基底$\{\bm{b}_1,\ldots,\bm{b}_n\}$}
+        \Ensure{簡約された基底$\{\bm{b}_1,\ldots,\bm{b}_n\}$}
+        \State $\overline{\delta}\gets(\delta+1)/2;~\overline{\eta}\gets\frac{\eta+1/2}{2}$
+        \State $\overline{r}_{1,1}\gets\diamond(\norm{\bm{b}_1}^2);~\kappa\gets 2$
+        \While{$\kappa\le n$}
+            \State $\texttt{sizeReduce}(\overline{\eta}, \kappa)$
+            \If{$\overline{\delta} \overline{r}_{\kappa-1, \kappa-1}<\overline{r}_{\kappa, \kappa}+\overline{\mu}_{\kappa, \kappa-1}^2\overline{r}_{\kappa-1, \kappa-1}$}
+                \State $\kappa\gets\kappa+1$
+            \Else
+                \State swap$(\bm{b}_{\kappa-1}, \bm{b}_\kappa)$
+                \State $\kappa\gets \max\{2, \kappa-1\}$
+            \EndIf
+        \EndWhile
+    \end{algorithmic}
+\end{algorithm}
+    \mbox{}\\
+\end{minipage}
+\end{frame}
+
 \begin{frame}{Seysen簡約（1/3）}
 \begin{itemize}
     \item $\{\bm{b}_1,\ldots, \bm{b}_n\}$: 基底
@@ -101,7 +156,7 @@
 \begin{definition}[Seysen簡約]
     $\{\bm{b}_1,\ldots, \bm{b}_n\}$がSeysen簡約されているとは
     \[
-        \bm{R}_{1, 1},~\bm{R}_{2, 2}\text{がSeysen簡約されている}\land \norm{\bm{R}_{2, 1}\bm{R}_{1, 1}^{-1}}_{\max}\le \frac{1}{2}
+        n=1\lor \left(\bm{R}_{1, 1},~\bm{R}_{2, 2}\text{がSeysen簡約されている}\land \norm{\bm{R}_{2, 1}\bm{R}_{1, 1}^{-1}}_{\max}\le \frac{1}{2}\right)
     \]
 \end{definition}
 \end{frame}
@@ -136,6 +191,22 @@
 \end{algorithm}
 \end{frame}
 
+\begin{frame}{BLASter LLL}{weakly-LLL簡約}
+\begin{definition}[weakly-LLL簡約基底]
+    $\{\bm{b}_1,\ldots,\bm{b}_n\}$がweakly-LLL簡約されているとは
+    \[
+        \norm{\bm{b}_k^\star}^2\ge (\delta - \mu_{k, k-1}^2)\norm{\bm{b}_{k-1}^\star}^2
+    \]
+    なるときをいう．
+    \begin{itemize}
+        \item[\quad]
+        \begin{itemize}
+            \item Lov\'asz条件のみを満たす
+        \end{itemize}
+    \end{itemize}
+\end{definition}
+\end{frame}
+
 \begin{frame}%{\texttt{BLASter}~LLLアルゴリズム}
 \begin{algorithm}[H]
     \footnotesize
@@ -149,14 +220,14 @@
             \State $\bm{R}\gets \bm{B}=\bm{RQ}$なる下三角行列$\bm{R}~(\bm{Q}:~\text{直交行列})$
             \State $i_0\gets \ell/2-i_0$
             \State $\mathcal{I}\gets \{(i_0+k\ell+1, \min\{n, i_0+k\ell+\ell\})~|~0\le k<(n-i_0)/\ell\}$
-            \State \textbf{for}~$(i, j)\in\mathcal{I}$~\textbf{do}~$\bm{V}_i\gets \texttt{LLL}(\bm{R}_{[i, j]\times [i, j]}, \delta)$~\textbf{endfor}
+            \State \textbf{for}~$(i, j)\in\mathcal{I}$~\textbf{do}~$\bm{V}_i\gets \texttt{LLL}(\bm{R}_{[i, j]\times [i, j]}, \delta)$~\textbf{endfor}\Comment{$\bm{V}_i$はLLL基底を与えるユニモジラ行列}
             \For{$(i, j)\in\mathcal{I}$}
                 \State $\bm{B}_{[i, j]\times [1, n]}\gets \bm{V}_i\bm{B}_{[i, j]\times [1, n]};~\bm{U}_{[i, j]\times [1, n]}\gets \bm{V}_i\bm{U}_{[i, j]\times [1, n]}$
             \EndFor
             %\State \textbf{for}~$(i, j)\in\mathcal{I}$~\textbf{do}~$\bm{B}_{[i, j]\times [1, n]}\gets \bm{V}_i\bm{B}_{[i, j]\times [1, n]};~\bm{U}_{[i, j]\times [1, n]}\gets \bm{V}_i\bm{U}_{[i, j]\times [1, n]}$~\textbf{endfor}
             \State $\bm{R}\gets \bm{B}=\bm{RQ}$なる下三角行列$\bm{R}~(\bm{Q}:~\text{直交行列})$
             \State $\bm{W}\gets \texttt{seysenReduce}(\bm{R});~\bm{B}\gets\bm{WB};~\bm{U}\gets\bm{WU}$
-            \State $f\gets \texttt{true}$
+            \State $f\gets \texttt{true}$\Comment{$\bm{B}$がweakly-LLL簡約されているか}
             \For{$i=1$to$n-1$}
                 \State \textbf{if}~$\delta r_{i, i}^2> r_{i, i+1}^2+r_{i+1, i+1}^2$~\textbf{then}~$f\gets\texttt{false};~\textbf{break}$~\textbf{endif}
             \EndFor
