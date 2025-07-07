@@ -289,15 +289,38 @@
 
     BLASter BKZでは大まかに次のことを行う
     \begin{itemize}
-        \item 
+        \item \textbf{$\bm{B}$を下三角行列と直交行列の積に分解}
+        \item \textbf{$\bm{B}$をブロックに分けてBKZを施す}
+        \item \textbf{BLASter DeepLLLを用いて簡約}
     \end{itemize}
 \end{frame}
 
 \begin{frame}
     %\frametitle{}
 
-    
-
+\begin{algorithm}[H]
+    \footnotesize
+    \begin{algorithmic}[1]
+        \caption{\footnotesize BLASter BKZアルゴリズム\cite{DPS25}}
+        \label{alg_blaster_bkz}
+        \Require{下三角行列$\bm{R}\in M_{n}(\mathbb{R})$~s.t.~$\bm{B}=\bm{RQ}$}
+        \Ensure{$\bm{UB}$が簡約基底行列となるようなunimodular行列$\bm{U}\in M_{n}(\mathbb{R})$}
+        \State \textbf{if}~$n\le 40$~\textbf{then}~\textbf{return}~$\texttt{BLASterDeepLLL}(\bm{B}, \delta, \ell, 4)$
+        \State $i_0\gets 0;~(\bm{B}, \bm{U})\gets \texttt{BLASterBKZ}(\bm{B}, \delta, \ell, \ell', \beta-P,1, P)$
+        \While{$t>0$}
+            \State $\bm{R}\gets \bm{B}=\bm{RQ}$なる下三角行列$\bm{R}~(\bm{Q}:~\text{直交行列})$
+            \State $i_0\gets i_0\bmod{\ell'}$
+            \State $\mathcal{I}\gets \{(i_0'+k\ell'+1, \min\{n, i_0'+k\ell'+\ell'\})~|~0\le k<(n-i_0')/\ell'\}$
+            \textbf{for}~$(i, j)\in\mathcal{I}$~\textbf{do}~$\bm{V}_i\gets \texttt{BKZReduce}(\bm{R}_{[i, j]\times [i, j]}, \delta, \beta)$
+            \For{$(i, j)\in\mathcal{I}$}
+                \State $\bm{B}_{[i, j]\times [1, n]}\gets \bm{V}_i\bm{B}_{[i, j]\times [1, n]};~\bm{U}_{[i, j]\times [1, n]}\gets \bm{V}_i\bm{U}_{[i, j]\times [1, n]}$
+            \EndFor
+            \State \textbf{if}~$i_0+\beta>n$~\textbf{then}~$i_0\gets 0;~t\gets t-1$~\textbf{else}~$i_0\gets i_0+\ell'-\beta+1$
+            \State $(\bm{B}, \bm{V})\gets \texttt{BLASterDeepLLL}(\bm{B}, \delta, \ell, 4)$
+            \State $\bm{U}\gets\bm{VU}$
+        \EndWhile
+    \end{algorithmic}
+\end{algorithm}
 \end{frame}
 
 \begin{frame}[allowframebreaks]{参考文献}
